@@ -1,9 +1,10 @@
-import numpy as np
-import matplotlib.pyplot as plt
+import time
+import datetime
 import random
+import numpy as np
 import copy as cp
 from sys import stdout
-
+from matplotlib import pyplot as plt, image as plt_img
 
 class NeuralNetwork():
 
@@ -58,9 +59,8 @@ class NeuralNetwork():
         for i in range(len(inputs)):
             result = self.forward_prop(inputs[i])
             if (np.argmax(result) == np.argmax(answers[i])):
-            #if (answers[i][0] - result < 0.1):
                 correct += 1
-        print("Accuracy: {0:}/{1:}\t{2:}%".format(correct, len(inputs), ((correct/len(inputs))*100)))
+        print("Accuracy: {0:}/{1:}\t{2:.2f}%".format(correct, len(inputs), ((correct/len(inputs))*100)))
 
     def one_train(self, inputs, labels):
         lr = 0.1
@@ -102,18 +102,44 @@ class NeuralNetwork():
         self.biases[0] = np.add(self.biases[0], hidden_gradient)
 
     def training(self, inputs, answers, iteration):
+        iter_delta = 0
+        iter_nb = 0
+        iter_duration = 0.1
+        iter_start = time.time()
+        
+        print('#'*40)
         self.print_accuracy(inputs, answers)
         for y in range(iteration):
-            stdout.write("\rIteration {0:}/{1:}\t{2:.2f}%".format(y, iteration, (y/iteration)*100))
+
+            stdout.write("\rIteration {0:}/{1:}\t{2:.2f}%\t\tETA:{3:}".format(y+1, iteration, ((y+1)/iteration)*100, datetime.timedelta(seconds=int(iter_duration*(iteration-y+1)))))
             stdout.flush()
-        
-            i = random.randint(0,len(training_images)-1)
-            #NN.train(data[i], answer[i])
+
+            i = random.randint(0,len(inputs)-1)
             self.one_train(inputs[i], answers[i])
+            
+            iter_delta = time.time() - iter_start
+            iter_nb += 1
+            if iter_delta >= 2:
+                iter_duration = iter_delta / iter_nb
+                iter_start = time.time()
+                iter_nb = 0
+
+
         print("\n")
         self.print_accuracy(inputs, answers)
+        print('#'*40)
 
 
+def try_on_image(file):
+    img = plt_img.imread(file)
+    aimg = np.asarray(img)
+    aimg = aimg.reshape(784, 1)
+    
+    imgplot = plt.imshow(np.reshape(aimg, (28, 28)), cmap='Greys')
+    plt.show(block=False)
+    plt.pause(2)
+    plt.close()
+    return np.argmax(NN.forward_prop(aimg))
 
 
 
@@ -124,25 +150,35 @@ with np.load('data/mnist.npz') as data:
     training_images = data['training_images']
     training_labels = data['training_labels']
 
-
+"""
 data = [np.array([[0],[1]]),
-        np.array([[1],[0]]),
-        np.array([[1],[1]]),
-        np.array([[0],[0]])]
+       np.array([[1],[0]]),
+       np.array([[1],[1]]),
+       np.array([[0],[0]])]
 
 answer = [np.array([[1]]),
-          np.array([[1]]),
-          np.array([[0]]),
-          np.array([[0]])]
+         np.array([[1]]),
+         np.array([[0]]),
+         np.array([[0]])]
+"""
 
 
-#plt.imshow(training_images[0].reshape(28,28), cmap="gray")
-#plt.show()
+data = training_images
+answer = training_labels
 
-layers_sizes = (784, 10, 10, 10,10)
+layers_sizes = (784, 20, 10, 1)
 NN = NeuralNetwork(layers_sizes)
 
-#print(NN.forward_prop(data[0]),"\n\n")
-#print(NN.forward_prop(data[1]),"\n\n")
-#print(NN.forward_prop(data[2]),"\n\n")
-#print(NN.forward_prop(data[3]),"\n\n")
+NN.load_network()
+
+# for i in range(len(data)):
+#     print(NN.forward_prop(data[i]),"")
+
+# NN.training(training_images, training_labels, 10000)
+
+# for i in range(len(data)):
+#     print(NN.forward_prop(data[i]),"")
+
+print(try_on_image('image0.png'))
+
+#NN.export_network()
