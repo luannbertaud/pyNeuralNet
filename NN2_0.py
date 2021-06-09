@@ -33,7 +33,7 @@ def try_on_image(file):
     aimg = np.asarray(img)
     aimg = aimg.reshape(784, 1)
 
-    return np.argmax(NN.forward_prop(aimg))
+    return np.argmax(NN.predict(aimg))
 
 
 
@@ -87,13 +87,13 @@ class NeuralNetwork():
     def print_accuracy(self, inputs, answers):
         correct = 0 
         for i in range(len(inputs)):
-            result = self.forward_prop(inputs[i])
+            result = self.predict(inputs[i])
             if (np.argmax(result) == np.argmax(answers[i])):
                 correct += 1
         print("Accuracy: {0:}/{1:}\t{2:.2f}%".format(correct, len(inputs), ((correct/len(inputs))*100)))
 
 
-    def forward_prop(self, x):
+    def predict(self, x):
         self.neuron_values = []
         for w,b in zip(self.weights, self.biases):
             x = self.sigmoid(np.matmul(w, x) + b)
@@ -103,7 +103,7 @@ class NeuralNetwork():
 
 
     def one_train(self, inputs, labels, learning_rate):
-        results = self.forward_prop(inputs)
+        results = self.predict(inputs)
         error = np.subtract(labels, results)
 
         for i in range(len(self.neuron_values)):

@@ -26,18 +26,18 @@ This will create a neural network made of 2 input neurons, 2 hidden layers of 3 
                np.array([[0]]),
                np.array([[0]])]
     
-    NN.training(data, answers, 100000)
+    NN.train(data, answers, 100000)
 
 Here we want to train the network on a logical 'OR'. As the training is supervised, you must provide the correct answers to the model.
 Then you supply the number of training cycle you want, a cycle stand for a try->correction of the model.
 
 ## Prediction
 
-    NN.forward_prop(data[0])
+    NN.predict(data[0])
 
-To make a prediction, use the forward propagation function with the input neurons value as parameter. This function will return a array containing values of the outputs neurons.
+To make a prediction, use the predict function with the input neurons value as parameter. This function will return a array containing values of the outputs neurons.
 
-In case of multiple output neurons (ex: digit prediction) you can select the most activated neuron by passing the result of the `forward_prop` function in `numpy.argmax()`.
+In case of multiple output neurons (ex: digit prediction) you can select the most activated neuron by passing the result of the `predict` function in `numpy.argmax()`.
 
 ## Import / Export
 
